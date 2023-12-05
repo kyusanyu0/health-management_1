@@ -130,14 +130,12 @@ const valueFormatter = (value) => `${value}mm`;
 const HealthRegister = () => {
   const [user] = useAuthState(auth);
   const [userInfo, setUserInfo] = useState();
-  //   const [healthInfo, setHealthInfo] = React.useState([10]);
   const [healths, setHealths] = useState([]);
   const [date, setDate] = React.useState(dayjs().format("YYYY年MM月DD日"));
   const [weight, setWeight] = React.useState("");
   const [sleep, setSleep] = React.useState("");
   const [bloodPressure_l, setBloodPressure_l] = React.useState("");
   const [bloodPressure_h, setBloodPressure_h] = React.useState("");
-  // const [currentUser, setCurrentUser] = useState(firebase.auth().user.email);
   const getAuthData = async () => {
     await firebase.auth().onAuthStateChanged((user) => {
       if (user) {
