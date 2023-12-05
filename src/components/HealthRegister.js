@@ -25,6 +25,12 @@ import format from 'date-fns/format';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, provider } from '../firebase';
 import { db, firebase } from '../firebase';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Button from '@mui/material/Button';
 function createData(
     name,
     calories,
@@ -145,41 +151,87 @@ const HealthRegister = () => {
     const [sleep, setSleep] = React.useState("");
     const [bloodPressure_l, setBloodPressure_l] = React.useState("");
     const [bloodPressure_h, setBloodPressure_h] = React.useState("");
+    // const [currentUser, setCurrentUser] = useState(firebase.auth().user.email);
     const navigate = useNavigate();
     const calendarBack = () => {
         navigate(`/calendar`);
     };
     const sentData = () => {
-        
+
         console.log("sent data:")
-        var data = { 
-            "user_display_name": auth.currentUser.displayName, 
-            "user_email": auth.currentUser.email, 
-            "date": date.$d, 
-            "weight": weight, 
-            "sleep":sleep,
+        var data = {
+            "user_display_name": auth.currentUser.displayName,
+            "user_email": auth.currentUser.email,
+            "date": date.$d,
+            "weight": weight,
+            "sleep": sleep,
             "bloodPressure_l": bloodPressure_l,
-            "bloodPressure_h": bloodPressure_h };
+            "bloodPressure_h": bloodPressure_h
+        };
         console.log(data);
         const query = db
-            .collection("heath-info")
-            .add(data);
+            .collection("health-info")
+            .add(data)
+            .then((docRef) => {
+                openSuccesSendMethod();
+                console.log("Document written with ID: ", docRef.id);
+            })
+            .catch((error) => {
+
+                console.error("Error adding document: ", error);
+            });
+
         return query;
 
-
     };
+    //Open success meessage log
+    const [openSuccesSend, setOpenSuccesSend] = React.useState(false);
+    const openSuccesSendMethod = () =>{
+        setOpenSuccesSend(true);
+    }
+    const handleCloseSuccesSend = () => {
+        setOpenSuccesSend(false);
+    }
 
     const changeSelectHealthInfo = (event) => {
         setHealthInfo(event.target.value);
     };
     const rows = [
-        createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+        createData(159, 6.0, 24, 4.0),
         createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
         createData('Eclair', 262, 16.0, 24, 6.0),
         createData('Cupcake', 305, 3.7, 67, 4.3),
         createData('Gingerbread', 356, 16.0, 49, 3.9),
     ];
-    // 日付取得
+   
+    // 健康情報を取得
+   
+    const [userHealthData, setUserHealthData] = useState(null);
+    useEffect(() => {
+
+        const fetchData = async (auth) => {
+            // console.log('auth.currentUser.email:'+auth.currentUser.email);
+          try {
+            const querySnapshot = await db
+              .firestore()
+              .collection("health-info")
+              .get();
+    
+            const data = querySnapshot.docs.map(doc => doc.data());
+            setUserHealthData(data);
+          } catch (error) {
+            console.error('Error fetching data:', error);
+          }
+        };
+        // console.log(auth.currentUser.email);
+        fetchData();
+    }, []);
+    
+    //   console.log(user)
+      
+    
+      
+
     // テキスト取得
     const handleWeight = (event) => {
         setWeight(event.target.value);
@@ -210,14 +262,14 @@ const HealthRegister = () => {
             </header>
             <div className="border-2 border-indigo-600 flex items-center h-56" style={{ overflow: 'scroll', height: '300px' }}>
                 <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
-                    <Table stickyHeader sx={{ minWidth: 650 }} aria-label="sticky table">
+                    <Table stickyHeader sx={{ minWidth: 600 }} aria-label="sticky table">
                         <TableHead className='sticky'>
                             <TableRow>
-                                <TableCell>Dessert (100g serving)</TableCell>
                                 <TableCell align="right">年月日</TableCell>
                                 <TableCell align="right">体重&nbsp;(g)</TableCell>
                                 <TableCell align="right">睡眠&nbsp;()</TableCell>
-                                <TableCell align="right">血圧&nbsp;()</TableCell>
+                                <TableCell align="right">低血圧&nbsp;()</TableCell>
+                                <TableCell align="right">高血圧&nbsp;()</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -226,12 +278,11 @@ const HealthRegister = () => {
                                     key={row.name}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                 >
-                                    <TableCell component="th" scope="row">
-                                        {row.name}
-                                    </TableCell>
+
                                     <TableCell align="right">{row.calories}</TableCell>
                                     <TableCell align="right">{row.fat}</TableCell>
                                     <TableCell align="right">{row.carbs}</TableCell>
+                                    <TableCell align="right">{row.protein}</TableCell>
                                     <TableCell align="right">{row.protein}</TableCell>
                                 </TableRow>
                             ))}
@@ -262,7 +313,7 @@ const HealthRegister = () => {
                             <MenuItem value={30}>低血圧</MenuItem>
                             <MenuItem value={40}>高血圧</MenuItem>
                         </Select> */}
-                    {/* </FormControl> */}
+                {/* </FormControl> */}
                 {/* </Box>  */}
                 <Box
                     component="form"
@@ -321,6 +372,26 @@ const HealthRegister = () => {
                 />
 
             </div>
+            <Dialog
+                open={openSuccesSend}
+                onClose={handleCloseSuccesSend}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"成功！！"}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        データが無事送信されました。
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseSuccesSend} autoFocus>
+                        終了
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
         </>
     );
