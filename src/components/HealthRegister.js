@@ -24,6 +24,10 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 //   グラフコード
 const chartSetting = {
   yAxis: [
@@ -125,6 +129,7 @@ const dataset = [
     month: "Dec",
   },
 ];
+
 const valueFormatter = (value) => `${value}mm`;
 
 const HealthRegister = () => {
@@ -136,6 +141,15 @@ const HealthRegister = () => {
   const [sleep, setSleep] = React.useState("");
   const [bloodPressure_l, setBloodPressure_l] = React.useState("");
   const [bloodPressure_h, setBloodPressure_h] = React.useState("");
+  const [healthSelect, setHealthSelect] = React.useState(10);
+  const [period, setPeriod] = React.useState(40);
+  const handleChangeHealthSelect = (event) => {
+    setHealthSelect(event.target.value);
+  };
+  const handleChangePeriod = (event) => {
+    setPeriod(event.target.value);
+  };
+
   const getAuthData = async () => {
     await firebase.auth().onAuthStateChanged((user) => {
       if (user) {
@@ -149,30 +163,52 @@ const HealthRegister = () => {
       const fetchHealthDataQuery = await db
         .collection("health-info")
         .where("user_email", "==", user.email)
+
         .onSnapshot((querySnapshot) => {
           const data = [];
           querySnapshot.docs.map((doc) => {
             let item = doc.data();
             item.id = doc.id;
+            // item.timestamp = convertToTimestamp(item.date);
             data.push(item);
           });
-          console.log(data);
+          // console.log(data);
+          // data.sort((a, b) => a.timestamp - b.timestamp);
           setHealths(data);
         });
       return fetchHealthDataQuery;
-    } catch (error) {}
+    } catch (error) { }
   };
 
+  console.log(healths);
+  console.log(dataset);
   useEffect(() => {
     getAuthData();
     fetchData();
   }, [userInfo]);
+  var dataFoChart = healths;
+
+  // for(let i =0;i<dataFoChart.length;i++){
+  //   console.log(typeof dataFoChart[i].dayTime);
+  //   dataFoChart[i].timeStamp=Date.parse(dataFoChart[i].dayTime + " 01:01:01");
+  //   console.log(dataFoChart[i].timeStamp);
+  // }
+
+
+  console.log(dataFoChart);
+  useEffect(() => {
+    getAuthData();
+    console.log(healths);
+  }, [healthSelect, period]);
 
   const navigate = useNavigate();
   const calendarBack = () => {
     navigate(`/calendar`);
   };
-
+  function parseDate(dateString) {
+    var parts = dateString.match(/(\d+)/g);
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+  }
   const handleDateChange = (newValue) => {
     // Format the date and update the state
     const formattedDate = newValue ? newValue.format("YYYY年MM月DD日") : "";
@@ -366,18 +402,108 @@ const HealthRegister = () => {
           />
         </Box>
       </div>
-      <div className="border-2 border-indigo-600 flex items-center justify-around h-4/5">
-        <BarChart
-          dataset={dataset}
-          xAxis={[{ scaleType: "band", dataKey: "month" }]}
-          series={[
-            { dataKey: "london", label: "体重", valueFormatter },
-            { dataKey: "paris", label: "睡眠", valueFormatter },
-            { dataKey: "newYork", label: "低血圧", valueFormatter },
-            { dataKey: "seoul", label: "高血圧", valueFormatter },
-          ]}
-          {...chartSetting}
-        />
+      {/* <div className="border-2 border-indigo-600 flex items-center justify-around h-4/5"> */}
+      <div className="border-2 border-indigo-600">
+        <div className="flex items-center justify-start h-4/5 mt-3" >
+          <FormControl >
+            <InputLabel id="demo-simple-select-label">項目</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={healthSelect}
+              label="項目"
+              onChange={handleChangeHealthSelect}
+
+            >
+              <MenuItem value={10}>体重</MenuItem>
+              <MenuItem value={20}>睡眠</MenuItem>
+              <MenuItem value={30}>血圧</MenuItem>
+              <MenuItem value={0}>すべて</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl >
+            <InputLabel id="demo-simple-select-label">項目</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={period}
+              label="項目"
+              onChange={handleChangePeriod}
+
+            >
+              <MenuItem value={40}>日</MenuItem>
+              <MenuItem value={50}>月</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+
+        <div className="flex items-center justify-around h-4/5">
+          {healthSelect === 10 && (
+            <BarChart
+              dataset={healths}
+              xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}
+              series={[
+                { dataKey: "weight", label: "体重", valueFormatter },
+                // { dataKey: "paris", label: "睡眠", valueFormatter },
+                // { dataKey: "newYork", label: "低血圧", valueFormatter },
+                // { dataKey: "seoul", label: "高血圧", valueFormatter },
+              ]}
+              {...chartSetting}
+            />
+          )}
+           {healthSelect === 20 && (
+            <BarChart
+              dataset={healths}
+              xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}
+              series={[
+                { dataKey: "sleep", label: "睡眠", valueFormatter },
+                // { dataKey: "paris", label: "睡眠", valueFormatter },
+                // { dataKey: "newYork", label: "低血圧", valueFormatter },
+                // { dataKey: "seoul", label: "高血圧", valueFormatter },
+              ]}
+              {...chartSetting}
+            />
+          )}
+           {healthSelect === 0 && (
+            <BarChart
+              dataset={healths}
+              xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}
+              series={[
+                { dataKey: "weight", label: "体重", valueFormatter },
+                { dataKey: "sleep", label: "睡眠", valueFormatter },
+                { dataKey: "bloodPressure_l", label: "低血圧", valueFormatter },
+                { dataKey: "bloodPressure_h", label: "高血圧", valueFormatter },
+                // { dataKey: "newYork", label: "低血圧", valueFormatter },
+                // { dataKey: "seoul", label: "高血圧", valueFormatter },
+              ]}
+              {...chartSetting}
+            />
+          )}
+           {healthSelect === 30 && (
+            <BarChart
+              dataset={healths}
+              xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}
+              series={[
+
+                { dataKey: "bloodPressure_l", label: "低血圧", valueFormatter },
+                { dataKey: "bloodPressure_h", label: "高血圧", valueFormatter },
+              
+              ]}
+              {...chartSetting}
+            />
+          )}
+          {/* <BarChart
+            dataset={healths}
+            xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}
+            series={[
+              { dataKey: "weight", label: "体重", valueFormatter },
+              // { dataKey: "paris", label: "睡眠", valueFormatter },
+              // { dataKey: "newYork", label: "低血圧", valueFormatter },
+              // { dataKey: "seoul", label: "高血圧", valueFormatter },
+            ]}
+            {...chartSetting}
+          /> */}
+        </div>
       </div>
       <Dialog
         open={openSuccesSend}
