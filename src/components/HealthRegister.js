@@ -186,7 +186,7 @@ const HealthRegister = () => {
     getAuthData();
     fetchData();
   }, [userInfo]);
-  var dataFoChart = healths;
+  // var dataFoChart = healths;
 
   // for(let i =0;i<dataFoChart.length;i++){
   //   console.log(typeof dataFoChart[i].dayTime);
@@ -195,10 +195,10 @@ const HealthRegister = () => {
   // }
 
 
-  console.log(dataFoChart);
+  
   useEffect(() => {
     getAuthData();
-    console.log(healths);
+    // console.log(healths);
   }, [healthSelect, period]);
 
   const navigate = useNavigate();
