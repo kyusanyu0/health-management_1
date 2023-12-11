@@ -285,16 +285,16 @@ const HealthRegister = () => {
         </button>
       </header>
       <div
-        className="border-2 border-indigo-600 flex items-center h-56"
-        style={{ overflow: "scroll", height: "300px" }}
+        className="border-2 border-indigo-600 flex items-center"
+        style={{ overflow: "scroll" }}
       >
         <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
           <Table stickyHeader sx={{ minWidth: 600 }} aria-label="sticky table">
             <TableHead className="sticky">
               <TableRow>
                 <TableCell align="right">年月日</TableCell>
-                <TableCell align="right">体重&nbsp;(g)</TableCell>
-                <TableCell align="right">睡眠&nbsp;()</TableCell>
+                <TableCell align="right">体重&nbsp;(kg)</TableCell>
+                <TableCell align="right">睡眠&nbsp;(h)</TableCell>
                 <TableCell align="right">低血圧&nbsp;()</TableCell>
                 <TableCell align="right">高血圧&nbsp;()</TableCell>
               </TableRow>
@@ -438,7 +438,7 @@ const HealthRegister = () => {
         </div>
 
         <div className="flex items-center justify-around h-4/5">
-          {healthSelect === 10 && (
+          {healthSelect === 10 && healths && healths.length > 0 &&(
             <BarChart
               dataset={healths}
               xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}
@@ -451,7 +451,7 @@ const HealthRegister = () => {
               {...chartSetting}
             />
           )}
-           {healthSelect === 20 && (
+           {healthSelect === 20 && healths && healths.length > 0 && (
             <BarChart
               dataset={healths}
               xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}
@@ -464,7 +464,7 @@ const HealthRegister = () => {
               {...chartSetting}
             />
           )}
-           {healthSelect === 0 && (
+           {healthSelect === 0 && healths && healths.length > 0 && (
             <BarChart
               dataset={healths}
               xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}
@@ -479,7 +479,7 @@ const HealthRegister = () => {
               {...chartSetting}
             />
           )}
-           {healthSelect === 30 && (
+           {healthSelect === 30 && healths && healths.length > 0 && (
             <BarChart
               dataset={healths}
               xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}
