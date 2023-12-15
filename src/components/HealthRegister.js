@@ -35,7 +35,7 @@ const chartSetting = {
       label: "健康グラフ",
     },
   ],
-  width: 700,
+  width: 1500,
   height: 500,
   sx: {
     [`.${axisClasses.left} .${axisClasses.label}`]: {
@@ -43,94 +43,9 @@ const chartSetting = {
     },
   },
 };
-const dataset = [
-  {
-    london: 59,
-    paris: 57,
-    newYork: 86,
-    seoul: 21,
-    month: "Jan",
-  },
-  {
-    london: 50,
-    paris: 52,
-    newYork: 78,
-    seoul: 28,
-    month: "Fev",
-  },
-  {
-    london: 47,
-    paris: 53,
-    newYork: 106,
-    seoul: 41,
-    month: "Mar",
-  },
-  {
-    london: 54,
-    paris: 56,
-    newYork: 92,
-    seoul: 73,
-    month: "Apr",
-  },
-  {
-    london: 57,
-    paris: 69,
-    newYork: 92,
-    seoul: 99,
-    month: "May",
-  },
-  {
-    london: 60,
-    paris: 63,
-    newYork: 103,
-    seoul: 144,
-    month: "June",
-  },
-  {
-    london: 59,
-    paris: 60,
-    newYork: 105,
-    seoul: 319,
-    month: "July",
-  },
-  {
-    london: 65,
-    paris: 60,
-    newYork: 106,
-    seoul: 249,
-    month: "Aug",
-  },
-  {
-    london: 51,
-    paris: 51,
-    newYork: 95,
-    seoul: 131,
-    month: "Sept",
-  },
-  {
-    london: 60,
-    paris: 65,
-    newYork: 97,
-    seoul: 55,
-    month: "Oct",
-  },
-  {
-    london: 67,
-    paris: 64,
-    newYork: 76,
-    seoul: 48,
-    month: "Nov",
-  },
-  {
-    london: 61,
-    paris: 70,
-    newYork: 103,
-    seoul: 25,
-    month: "Dec",
-  },
-];
 
-const valueFormatter = (value) => `${value}mm`;
+
+const valueFormatter = (value) => `${value}`;
 
 const HealthRegister = () => {
   const [user] = useAuthState(auth);
@@ -180,8 +95,33 @@ const HealthRegister = () => {
     } catch (error) { }
   };
 
+
+
+  for (let i = 0; i < healths.length; i++) {
+    var dateString = healths[i].dayTime;
+    var dt1 = parseInt(dateString.substring(8, 10));
+    var mon1 = parseInt(dateString.substring(5, 7));
+    var yr1 = parseInt(dateString.substring(0, 4));
+    var dateStringCreated = dt1 + "/" + mon1 + "/" + yr1;
+    // console.log(dt1,mon1,yr1);
+    // var timestamp = Date.parse(dateStringCreated);
+    // var dataObject = new Date(timestamp);
+    var date1 = new Date(yr1, mon1 - 1, dt1);
+    healths[i].dayTimestamp = date1.getTime();
+    console.log(date1.getTime());
+  }
+  healths.sort(function (x, y) {
+    return x.dayTimestamp - y.dayTimestamp;
+  })
   console.log(healths);
-  console.log(dataset);
+
+  function getArrayOfNames(arrayOfObjects) {
+    return arrayOfObjects.map(obj => obj.dayTime);
+  }
+
+  var healthsObjectDate = getArrayOfNames(healths);
+  console.log(healthsObjectDate);
+
   useEffect(() => {
     getAuthData();
     fetchData();
@@ -195,7 +135,7 @@ const HealthRegister = () => {
   // }
 
 
-  
+
   useEffect(() => {
     getAuthData();
     // console.log(healths);
@@ -288,7 +228,7 @@ const HealthRegister = () => {
         className="border-2 border-indigo-600 flex items-center"
         style={{ overflow: "scroll" }}
       >
-        <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
+        <TableContainer component={Paper} sx={{ maxHeight: 210 }}>
           <Table stickyHeader sx={{ minWidth: 600 }} aria-label="sticky table">
             <TableHead className="sticky">
               <TableRow>
@@ -438,60 +378,63 @@ const HealthRegister = () => {
         </div>
 
         <div className="flex items-center justify-around h-4/5">
-          {healthSelect === 10 && healths && healths.length > 0 &&(
-            <BarChart
-              dataset={healths}
-              xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}
-              series={[
-                { dataKey: "weight", label: "体重", valueFormatter },
-                // { dataKey: "paris", label: "睡眠", valueFormatter },
-                // { dataKey: "newYork", label: "低血圧", valueFormatter },
-                // { dataKey: "seoul", label: "高血圧", valueFormatter },
-              ]}
-              {...chartSetting}
-            />
-          )}
-           {healthSelect === 20 && healths && healths.length > 0 && (
-            <BarChart
-              dataset={healths}
-              xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}
-              series={[
-                { dataKey: "sleep", label: "睡眠", valueFormatter },
-                // { dataKey: "paris", label: "睡眠", valueFormatter },
-                // { dataKey: "newYork", label: "低血圧", valueFormatter },
-                // { dataKey: "seoul", label: "高血圧", valueFormatter },
-              ]}
-              {...chartSetting}
-            />
-          )}
-           {healthSelect === 0 && healths && healths.length > 0 && (
-            <BarChart
-              dataset={healths}
-              xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}
-              series={[
-                { dataKey: "weight", label: "体重", valueFormatter },
-                { dataKey: "sleep", label: "睡眠", valueFormatter },
-                { dataKey: "bloodPressure_l", label: "低血圧", valueFormatter },
-                { dataKey: "bloodPressure_h", label: "高血圧", valueFormatter },
-                // { dataKey: "newYork", label: "低血圧", valueFormatter },
-                // { dataKey: "seoul", label: "高血圧", valueFormatter },
-              ]}
-              {...chartSetting}
-            />
-          )}
-           {healthSelect === 30 && healths && healths.length > 0 && (
-            <BarChart
-              dataset={healths}
-              xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}
-              series={[
+          <Box>
+            {healthSelect === 10 && healths && healths.length > 0 && (
+              <BarChart
+                dataset={healths}
+                xAxis={[{ scaleType: "band", dataKey: "dayTime" , categoryGapRatio :0.2}]}
+                series={[
+                  { dataKey: "weight", label: "体重", valueFormatter },
+                  // { dataKey: "paris", label: "睡眠", valueFormatter },
+                  // { dataKey: "newYork", label: "低血圧", valueFormatter },
+                  // { dataKey: "seoul", label: "高血圧", valueFormatter },
+                ]}
+                width={1000}
 
-                { dataKey: "bloodPressure_l", label: "低血圧", valueFormatter },
-                { dataKey: "bloodPressure_h", label: "高血圧", valueFormatter },
-              
-              ]}
-              {...chartSetting}
-            />
-          )}
+
+                {...chartSetting}
+              />
+            )}
+            {healthSelect === 20 && healths && healths.length > 0 && (
+              <BarChart
+                dataset={healths}
+                xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}
+                series={[
+                  { dataKey: "sleep", label: "睡眠", valueFormatter },
+                  // { dataKey: "paris", label: "睡眠", valueFormatter },
+                  // { dataKey: "newYork", label: "低血圧", valueFormatter },
+                  // { dataKey: "seoul", label: "高血圧", valueFormatter },
+                ]}
+                {...chartSetting}
+              />
+            )}
+            {healthSelect === 0 && healths && healths.length > 0 && (
+              <BarChart
+                dataset={healths}
+                xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}
+                series={[
+                  { dataKey: "weight", label: "体重", valueFormatter },
+                  { dataKey: "sleep", label: "睡眠", valueFormatter },
+                  { dataKey: "bloodPressure_l", label: "低血圧", valueFormatter },
+                  { dataKey: "bloodPressure_h", label: "高血圧", valueFormatter },
+                  // { dataKey: "newYork", label: "低血圧", valueFormatter },
+                  // { dataKey: "seoul", label: "高血圧", valueFormatter },
+                ]}
+                {...chartSetting}
+              />
+            )}
+            {healthSelect === 30 && healths && healths.length > 0 && (
+              <BarChart
+                dataset={healths}
+                xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}
+                series={[
+                  { dataKey: "bloodPressure_l", label: "低血圧", valueFormatter },
+                  { dataKey: "bloodPressure_h", label: "高血圧", valueFormatter },
+                ]}
+                {...chartSetting}
+              />
+            )}
+          </Box>
           {/* <BarChart
             dataset={healths}
             xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}

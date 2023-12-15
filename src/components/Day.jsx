@@ -10,7 +10,7 @@ export const Day = (props) => {
 
   // 今日の日付を色付けする
   const getCurrentDayClass = () => {
-    console.log(day.format("DD-MM-YY"));
+   
     return day.format("DD-MM-YY") === dayjs().format("DD-MM-YY")
       ? "bg-blue-800 text-white rounded-full w-7"
       : "";
