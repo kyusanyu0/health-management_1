@@ -51,7 +51,10 @@ const HealthRegister = () => {
   const [user] = useAuthState(auth);
   const [userInfo, setUserInfo] = useState();
   const [healths, setHealths] = useState([]);
+  const [healthsCharts, setHealthsCharts] = useState([]);
   const [date, setDate] = React.useState(dayjs().format("YYYY年MM月DD日"));
+  const [dateStart, setDateStart] = React.useState(dayjs().format("YYYY年MM月DD日"));
+  const [dateEnd, setDateEnd] = React.useState(dayjs().format("YYYY年MM月DD日"));
   const [weight, setWeight] = React.useState("");
   const [sleep, setSleep] = React.useState("");
   const [bloodPressure_l, setBloodPressure_l] = React.useState("");
@@ -90,6 +93,7 @@ const HealthRegister = () => {
           // console.log(data);
           // data.sort((a, b) => a.timestamp - b.timestamp);
           setHealths(data);
+          setHealthsCharts(data);
         });
       return fetchHealthDataQuery;
     } catch (error) { }
@@ -108,19 +112,25 @@ const HealthRegister = () => {
     // var dataObject = new Date(timestamp);
     var date1 = new Date(yr1, mon1 - 1, dt1);
     healths[i].dayTimestamp = date1.getTime();
-    console.log(date1.getTime());
+
   }
   healths.sort(function (x, y) {
     return x.dayTimestamp - y.dayTimestamp;
   })
-  console.log(healths);
+  const changeTimeStringToTimestamp = (dateString) => {
+    var dt1 = parseInt(dateString.substring(8, 10));
+    var mon1 = parseInt(dateString.substring(5, 7));
+    var yr1 = parseInt(dateString.substring(0, 4));
+    var date1 = new Date(yr1, mon1 - 1, dt1);
+    return date1.getTime();;
+  };
 
   function getArrayOfNames(arrayOfObjects) {
     return arrayOfObjects.map(obj => obj.dayTime);
   }
 
   var healthsObjectDate = getArrayOfNames(healths);
-  console.log(healthsObjectDate);
+
 
   useEffect(() => {
     getAuthData();
@@ -154,7 +164,18 @@ const HealthRegister = () => {
     const formattedDate = newValue ? newValue.format("YYYY年MM月DD日") : "";
     setDate(formattedDate);
   };
+  const handleDateStartChange = (newValue) => {
+    const formattedDate = newValue ? newValue.format("YYYY年MM月DD日") : "";
+    setDateStart(formattedDate);
+  };
+  const handleDateEndChange = (newValue) => {
+    const formattedDate = newValue ? newValue.format("YYYY年MM月DD日") : "";
+    setDateEnd(formattedDate);
+  };
+
+  console.log(healths);
   const sentData = () => {
+    var sentAgainFlag = false;
     var data = {
       user_display_name: auth.currentUser.displayName,
       user_email: auth.currentUser.email,
@@ -165,19 +186,87 @@ const HealthRegister = () => {
       bloodPressure_h: bloodPressure_h,
       created_at: firebase.firestore.FieldValue.serverTimestamp(),
     };
-    const query = db
-      .collection("health-info")
-      .add(data)
-      .then((docRef) => {
-        openSuccesSendMethod();
-        console.log("Document written with ID: ", docRef.id);
-      })
-      .catch((error) => {
-        console.error("Error adding document: ", error);
-      });
 
-    return query;
+    healths.forEach((health) => {
+      if (health.dayTime === date) {
+        sentAgainFlag = true;
+      }
+    })
+    if (sentAgainFlag) {
+      const collectionRef = db.collection("health-info");
+      const query = collectionRef.where("dayTime", "==", date);
+
+      // query = db
+      //   .collection("health-info")
+      //   .update(data)
+      //   .then((docRef) => {
+      //     openSuccesSendMethod();
+      //     console.log("Document written with ID: ", docRef.id);
+      //   })
+      //   .catch((error) => {
+      //     console.error("Error adding document: ", error);
+      //   });
+      query.get()
+        .then((querySnapshot) => {
+          if (!querySnapshot.empty) {
+            const docRef = querySnapshot.docs[0].ref;
+            if (sentAgainFlag) {
+              docRef.set(data)
+                .then(() => {
+                  openSuccesSendMethod();
+                  console.log("Document updated successfully");
+                })
+                .catch((error) => {
+                  console.error("Error updating document: ", error);
+                });
+            } else {
+              console.log("Update condition not met, document not updated");
+            }
+          } else {
+            console.log("No document found matching the condition");
+          }
+        })
+        .catch((error) => {
+          console.error("Error querying documents: ", error);
+        });
+
+      return query;
+    } else {
+      const query = db
+        .collection("health-info")
+        .add(data)
+        .then((docRef) => {
+          openSuccesSendMethod();
+          console.log("Document written with ID: ", docRef.id);
+        })
+        .catch((error) => {
+          console.error("Error adding document: ", error);
+        });
+
+      return query;
+
+
+    }
   };
+
+  useEffect(() => {
+    console.log('Change date');
+    var timeStampStart = changeTimeStringToTimestamp(dateStart);
+    var timeStampEnd = changeTimeStringToTimestamp(dateEnd);
+    setHealthsCharts(filterDatesInRange(healths, timeStampStart, timeStampEnd));
+    console.log(healths);
+    console.log(healthsCharts);
+
+  }, [dateStart, dateEnd]);
+
+  function filterDatesInRange(healths, startDate, endDate) {
+    const filteredDates = healths.filter(health => {
+      const timestamp = health.dayTimestamp;
+      return timestamp >= startDate && timestamp <= endDate;
+    });
+
+    return filteredDates;
+  }
   //Open success meessage log
   const [openSuccesSend, setOpenSuccesSend] = React.useState(false);
   const openSuccesSendMethod = () => {
@@ -215,7 +304,7 @@ const HealthRegister = () => {
           onClick={calendarBack}
           className="border rounded py-2 px-4 mr-5"
         >
-          体型管理機能
+          カロリー計算機能
         </button>
         <button
           onClick={calendarBack}
@@ -361,28 +450,39 @@ const HealthRegister = () => {
               <MenuItem value={0}>すべて</MenuItem>
             </Select>
           </FormControl>
-          <FormControl >
-            <InputLabel id="demo-simple-select-label">項目</InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={period}
-              label="項目"
-              onChange={handleChangePeriod}
 
-            >
-              <MenuItem value={40}>日</MenuItem>
-              <MenuItem value={50}>月</MenuItem>
-            </Select>
+          <FormControl >
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              {/* <InputLabel id="demo-simple-select-label">開始日</InputLabel> */}
+              <DatePicker
+                value={dayjs(date, "YYYY年MM月DD日")} // Convert the string back to a dayjs object
+                format="YYYY年MM月DD日"
+                onChange={handleDateStartChange}
+
+                label="開始日"
+              />
+            </LocalizationProvider>
+          </FormControl >
+          {/* <InputLabel id="demo-simple-select-label">終了日</InputLabel> */}
+          <FormControl >
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                value={dayjs(date, "YYYY年MM月DD日")} // Convert the string back to a dayjs object
+                format="YYYY年MM月DD日"
+                onChange={handleDateEndChange}
+
+                label='終了日'
+              />
+            </LocalizationProvider>
           </FormControl>
         </div>
 
         <div className="flex items-center justify-around h-4/5">
           <Box>
-            {healthSelect === 10 && healths && healths.length > 0 && (
+            {healthSelect === 10 && healthsCharts.length > 0 ? (
               <BarChart
-                dataset={healths}
-                xAxis={[{ scaleType: "band", dataKey: "dayTime" , categoryGapRatio :0.2}]}
+                dataset={healthsCharts}
+                xAxis={[{ scaleType: "band", dataKey: "dayTime", categoryGapRatio: 0.2 }]}
                 series={[
                   { dataKey: "weight", label: "体重", valueFormatter },
                   // { dataKey: "paris", label: "睡眠", valueFormatter },
@@ -394,10 +494,12 @@ const HealthRegister = () => {
 
                 {...chartSetting}
               />
+            ) : (
+              <p></p>
             )}
-            {healthSelect === 20 && healths && healths.length > 0 && (
+            {healthSelect === 20 && healthsCharts && healthsCharts.length > 0 ? (
               <BarChart
-                dataset={healths}
+                dataset={healthsCharts}
                 xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}
                 series={[
                   { dataKey: "sleep", label: "睡眠", valueFormatter },
@@ -407,8 +509,10 @@ const HealthRegister = () => {
                 ]}
                 {...chartSetting}
               />
+            ) : (
+              <p></p>
             )}
-            {healthSelect === 0 && healths && healths.length > 0 && (
+            {healthSelect === 0 && healthsCharts && healthsCharts.length > 0 ? (
               <BarChart
                 dataset={healths}
                 xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}
@@ -422,10 +526,12 @@ const HealthRegister = () => {
                 ]}
                 {...chartSetting}
               />
+            ) : (
+              <p></p>
             )}
-            {healthSelect === 30 && healths && healths.length > 0 && (
+            {healthSelect === 30 && healthsCharts && healthsCharts.length > 0 ? (
               <BarChart
-                dataset={healths}
+                dataset={healthsCharts}
                 xAxis={[{ scaleType: "band", dataKey: "dayTime" }]}
                 series={[
                   { dataKey: "bloodPressure_l", label: "低血圧", valueFormatter },
@@ -433,6 +539,8 @@ const HealthRegister = () => {
                 ]}
                 {...chartSetting}
               />
+            ) : (
+              <p></p>
             )}
           </Box>
           {/* <BarChart
