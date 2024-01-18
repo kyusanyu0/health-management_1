@@ -10,12 +10,12 @@ export const Day = (props) => {
 
   // 今日の日付を色付けする
   const getCurrentDayClass = () => {
-   
+    console.log(day.format("DD-MM-YY"));
     return day.format("DD-MM-YY") === dayjs().format("DD-MM-YY")
-      ? "bg-blue-800 text-white rounded-full w-7"
+      ? "bg-green-500 text-white rounded-full w-7"
       : "";
   };
- 
+
   // 登録データを日付が一致する日に表示
   useEffect(() => {
     const events = savedEvents.filter(
@@ -24,17 +24,29 @@ export const Day = (props) => {
     setDayEvents(events);
   }, [savedEvents, day]);
 
+  const isSunday = (day) => {
+    return day.day() === 0; // 0 represents Sunday
+  };
+
+  const isSaturday = (day) => {
+    return day.day() === 6; // 6 represents Saturday
+  };
+
   return (
-    <div className="border border-gray-200 flex flex-col">
+    <div className="border border-black-200 flex flex-col">
       <header className="flex flex-col items-center">
         {/* 1行目に曜日を表示 */}
-        {rowIdx === 0 && <p className="text-sm mt-1">{day.format("ddd")}</p>}
-        <p className={`text-sm p-1 my-1 text-center" ${getCurrentDayClass()}`}>
+        {rowIdx === 0 && <p className="text-lg mt-1">{day.format("ddd")}</p>}
+        <p
+          className={`text-2x-1 p-1 my-1 text-center ${getCurrentDayClass()} ${
+            isSaturday(day) ? "text-blue-500" : ""
+          } ${isSunday(day) ? "text-red-500" : ""}`}
+        >
           {day.format("DD")}
         </p>
       </header>
       <div
-        className="flex-1 cursor-pointer"
+        className="flex-1 cursor-pointer overflow-y-auto"
         onClick={() => {
           setDaySelected(day);
           setShowEventModal(true);

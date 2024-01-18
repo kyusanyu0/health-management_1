@@ -306,13 +306,14 @@ const HealthRegister = () => {
         >
           カロリー計算機能
         </button>
-        <button
+        {/* <button
           onClick={calendarBack}
           className="border rounded py-2 px-4 mr-5"
         >
           診断機能
-        </button>
+        </button> */}
       </header>
+      {/* 表示機能 */}
       <div
         className="border-2 border-indigo-600 flex items-center"
         style={{ overflow: "scroll" }}
@@ -347,7 +348,7 @@ const HealthRegister = () => {
           </Table>
         </TableContainer>
       </div>
-
+      {/* 情報登録 */}
       <div className="border-2 border-indigo-600 flex items-center justify-around">
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
@@ -431,6 +432,7 @@ const HealthRegister = () => {
           />
         </Box>
       </div>
+      {/* 項目選択 */}
       {/* <div className="border-2 border-indigo-600 flex items-center justify-around h-4/5"> */}
       <div className="border-2 border-indigo-600">
         <div className="flex items-center justify-start h-4/5 mt-3" >
@@ -450,7 +452,7 @@ const HealthRegister = () => {
               <MenuItem value={0}>すべて</MenuItem>
             </Select>
           </FormControl>
-
+          {/* 開始日 */}
           <FormControl >
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               {/* <InputLabel id="demo-simple-select-label">開始日</InputLabel> */}
@@ -463,6 +465,7 @@ const HealthRegister = () => {
               />
             </LocalizationProvider>
           </FormControl >
+          {/* 終了日 */}
           {/* <InputLabel id="demo-simple-select-label">終了日</InputLabel> */}
           <FormControl >
             <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -476,7 +479,7 @@ const HealthRegister = () => {
             </LocalizationProvider>
           </FormControl>
         </div>
-
+        {/* グラフの表示 */}
         <div className="flex items-center justify-around h-4/5">
           <Box>
             {healthSelect === 10 && healthsCharts.length > 0 ? (
@@ -556,6 +559,7 @@ const HealthRegister = () => {
           /> */}
         </div>
       </div>
+      {/* 送信成功 */}
       <Dialog
         open={openSuccesSend}
         onClose={handleCloseSuccesSend}

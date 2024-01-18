@@ -4,17 +4,17 @@ import { auth, provider } from '../firebase';
 import './../App.css';
 import { useAuthState} from "react-firebase-hooks/auth";
 import { Link , useNavigate  } from "react-router-dom";
+import './Calendar.css';
 
 function Home() {
     const [user] = useAuthState(auth);
-    console.log("user:", user);
+    
 
   return (
     <div className=''>
         {user ? (
             <>
-                <UserInfo />
-                <SignOutButton />
+                <SignOutButton/>
             </>
         ) : (
             <SignInButton />
@@ -25,7 +25,7 @@ function Home() {
 
 export default Home;
 
-//サインイン
+//ログイン
 function SignInButton() {
     const navigate = useNavigate();
     const signInWithGoogle = () => {
@@ -43,24 +43,42 @@ function SignInButton() {
     };
 
     return (
-        <button onClick={signInWithGoogle}>
-            <p>サインイン</p>
+        <>
+        <h1>個人健康管理システム</h1>
+        <p1>本システムは現状や時間の経過を確認し、現状の把握、今後の目標や計画を立てやすいシステムである。<br/>
+        カレンダーのメモ機能を使用することでスケジュールの管理や、健康記録機能で体重、睡眠、血圧を記録し、グラフで確認することができる。<br/>
+        カロリー計算機能ではその日食べたもののカロリーの計算が可能である。<br/>
+        googleアカウントを利用してログインする</p1><br/>
+
+        <button
+         className ="signIn"
+         onClick={signInWithGoogle}>
+        <p>ログイン</p>
         </button>
+
+        </>
     );
 }
 
-//サインアウト
+//ログアウト
 function SignOutButton() {
+    const navigate = useNavigate();
+    const calendarBack = () => {
+        navigate(`/calendar`);
+      };
     return (
-        <button onClick={() => auth.signOut()}>
-            <p>サインアウト</p>
+        <>
+        <h1>ログアウトしますか</h1>
+        <button 
+        className="signout"
+        onClick={() => auth.signOut()}>
+            <p1>はい</p1>
         </button>
+        <button
+        className='back'
+        onClick={calendarBack}>
+            <p1>いいえ</p1>
+        </button>
+        </>
     );
-}
-
-function UserInfo() {
-    return <div className=''>
-        <img src={auth.currentUser.photoURL} alt=''/>
-        <p>{auth.currentUser.displayName}</p>
-    </div>;
 }

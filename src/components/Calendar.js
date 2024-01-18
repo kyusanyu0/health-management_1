@@ -2,7 +2,6 @@ import React from 'react';
 import { useState, useEffect, useContext } from "react";
 import { getMonth } from "./../util";
 import { CalendarHeader } from "./CalendarHeader";
-import { Sidebar } from "./Sidebar";
 import { Month } from "./Month";
 import { EventModal } from "./EventModal";
 import GlobalContext from "./../context/GlobalContext";
@@ -20,7 +19,6 @@ const Calendar = () => {
                 <div className="h-screen flex flex-col">
                     <CalendarHeader />
                     <div className="flex flex-1">
-                        <Sidebar />
                         <Month month={currentMonth} />
                     </div>
                 </div>

@@ -8,14 +8,11 @@ function App() {
   return (
     <Router>
       <div>
-        {/* <div className="App">
-          <h1>login機能</h1>
-          <Home />
-        </div> */}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/health-register" element={<HealthRegister />} />
+          <Route path="/Home" element={<Home />} />
         </Routes>
       </div>
     </Router>
@@ -24,3 +21,4 @@ function App() {
 }
 
 export default App;
+

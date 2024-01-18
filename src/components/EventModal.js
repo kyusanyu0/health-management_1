@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { MdDeleteForever, MdClose } from "react-icons/md";
 import GlobalContext from "../context/GlobalContext";
+import './Calendar.css';
 
 export const EventModal = () => {
   const { daySelected, setShowEventModal, dispatchCalEvent, selectedEvent } =
@@ -30,6 +31,7 @@ export const EventModal = () => {
           <div className="text-gray-400">
             {selectedEvent && (
               <button
+                className="out"
                 onClick={() => {
                   dispatchCalEvent({ type: "delete", payload: selectedEvent });
                   setShowEventModal(false);
@@ -38,7 +40,9 @@ export const EventModal = () => {
                 <MdDeleteForever />
               </button>
             )}
-            <button onClick={() => setShowEventModal(false)}>
+            <button
+            className="out2" 
+            onClick={() => setShowEventModal(false)}>
               <MdClose />
             </button>
           </div>
@@ -55,7 +59,7 @@ export const EventModal = () => {
               className="pt-3 border-0 text-gray-600 text-xl font-semibold pb-2 w-full border-b-2 border-gray-200 focus:outline-none focus:ring-0 focus:border-blue-500"
               onChange={(e) => setTitle(e.target.value)}
             />
-            <p>{daySelected.format("dddd, MMMM DD")}</p>
+            <p>{daySelected.format("MMMMDD日dddd")}</p>
           </div>
         </div>
         <footer className="flex justify-end border-t p-3 mt-5">
@@ -64,7 +68,7 @@ export const EventModal = () => {
             onClick={handleSubmit}
             className="bg-blue-500 hover:bg-blue-600 px-6 py-2 rounded text-white"
           >
-            Save
+            保存
           </button>
         </footer>
       </form>
