@@ -23,6 +23,9 @@ export const CalendarHeader = () => {
   const handelHealthRegister =()=>{
     navigate(`/health-register`);
   };
+  const calendarBack = () => {
+    navigate(`/calendar`);
+  };
   return (
     <header className="px-4 py-2 flex items-center">
       <h1 className="mr-10 text-xl text-gray-500 fond-bold">Calendar</h1>
@@ -43,11 +46,24 @@ export const CalendarHeader = () => {
         {dayjs(new Date(dayjs().year(), monthIndex)).format("MMMM YYYY")}
       </h2>
 
-      <button onClick={handelHealthRegister} className="border rounded ml-15">
+      <button onClick={handelHealthRegister} className="border rounded py-2 px-4 mr-5">
         
         健康記録
        
       </button>
+
+      <button
+          onClick={calendarBack}
+          className="border rounded py-2 px-4 mr-5"
+        >
+          カロリー計算機能
+        </button>
+        <button
+          onClick={calendarBack}
+          className="border rounded py-2 px-4 mr-5"
+        >
+          診断機能
+        </button>
     </header>
   );
 };

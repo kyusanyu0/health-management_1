@@ -7,7 +7,7 @@ import { Link , useNavigate  } from "react-router-dom";
 
 function Home() {
     const [user] = useAuthState(auth);
-    
+    console.log("user:", user);
 
   return (
     <div className=''>
